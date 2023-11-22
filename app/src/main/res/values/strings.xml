@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Keyboard Layout Comparison</string>
+    <string name="check_active_keyboard_box">Click here to open keyboard and select layout</string>
+    <string name="check_active_keyboard_instruction">Tap on the Keyboard logo like the one in the screenshot above to select the keyboard layout to be used.</string>
+
+
+    <string name="main_title">Keyboard Layout Comparison Test</string>
+    <string name="main_instructions">Welcome to our keyboard layout comparison test. You will be be shown a three sets of five phrases, in each set,in each set you are expected to type the given phrase in the text box with the specified keyboard layout. You will be given a chance to change the keyboard layout at the beginning of each set.</string>
+    <string name="main_instructions2">The keyboard layouts being used are QWERTY, DVORAK, and MessagEase. Please make sure these keyboard layouts have been installed and enabled on this testing device. Installation apk files have been attached with submission folder for installing these keyboard layouts.
+    Note: QWERTY is installed and enabled by default.</string>
+    <string name="main_button">Proceed</string>
+
+    <string name="qwerty_title">QWERTY Layout Test</string>
+    <string name="begin_qwerty">Begin QWERTY Test</string>
+    <string name="qwerty_instruction">The First set of phrases will be typed using the QWERTY keyboard. QWERTY keyboard should be active by default. If not, Click on the text input box below and select the QWERTY keyboard as seen in the screenshot below.</string>
+
+
+</resources>
