@@ -5,19 +5,45 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class QwertyTesting extends Activity {
 
+    TextView textToType, timeLabel;
+    EditText userInput;
+    ArrayList<String>testPhaseList;
+    //testing set => 1=QWERTY, 2=DVORAK, 3=MESSAGEASE
+    int questionPointer, testingSet;
+    UserInputListener userTextChangedListener;
+    Button nextPhase;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qwerty_testing);
+    //set references from view
+        textToType = findViewById(R.id.text_to_enter);
+        userInput = findViewById(R.id.userInput);
+        timeLabel = findViewById(R.id.time);
+    //button in-between phases, hidden for now
+        nextPhase = findViewById(R.id.next_phase_button);
+        nextPhase.setVisibility(View.GONE);
+    //generate phase to type
+        testPhaseList = generatePhraseSet();
+        textToType.setText(testPhaseList.get(questionPointer));
+    //set other environment variables
+        testingSet=1;
+        //initialize stats for each keyboard layout wpm, error rate
 
+    //create timer
 
-
-
+    //listener for each character typed, object class defined at very bottom of this activity
+        userTextChangedListener = new UserInputListener();
+        userInput.addTextChangedListener(userTextChangedListener);
     }
 
     public void onRestoreInstance(Bundle savedInstanceState){
