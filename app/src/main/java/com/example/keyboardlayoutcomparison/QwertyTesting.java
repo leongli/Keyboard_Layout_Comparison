@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -26,7 +28,14 @@ public class QwertyTesting extends Activity {
     private final static int NUMBER_OF_TRIAL_PHRASES=5;
     private final static int PHRASES_SOURCE = R.raw.phrases;
 
-    TextView textToType, timeLabel;
+    LinearLayout testView, infoView;
+
+    //for info view
+    TextView info, pictureCaption;
+    ImageView keyboardScreenshot;
+    Button beginTest;
+    EditText selectKeyboard;
+    TextView pageTitle, textToType, timeLabel;
     EditText userInput;
     ArrayList<String>testPhraseList, qwertyPhraseList, dvorakPhraseList, messageasePhraseList;
     int currentPhraseNumber,currentKeyboard;
@@ -70,11 +79,24 @@ public class QwertyTesting extends Activity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qwerty_testing);
+        testView=findViewById(R.id.testLayout);
+        infoView=findViewById(R.id.infoLayout);
+
+        info = findViewById(R.id.qwerty_instruction);
+        pictureCaption= findViewById(R.id.keyboard_select_instruction);
+        keyboardScreenshot = findViewById(R.id.imageView);
+        beginTest = findViewById(R.id.goNext);
+        selectKeyboard=findViewById(R.id.qwerty_select_box);
+        infoView.setVisibility(View.GONE);
+
+        testView.setVisibility(View.VISIBLE);
+
     //set references from view
+        pageTitle = findViewById(R.id.qwerty_intro_title3);
         textToType = findViewById(R.id.text_to_enter);
         userInput = findViewById(R.id.userInput);
         timeLabel = findViewById(R.id.time);
-    //button in-between phases, hidden for now
+    //goNext in-between phases, hidden for now
         nextPhase = findViewById(R.id.next_phase_button);
         nextPhase.setVisibility(View.GONE);
     //generate phase to type
@@ -252,8 +274,13 @@ public class QwertyTesting extends Activity {
      */
     protected float calculateErrorRate(ArrayList<String> list, int numErrors){
         float errorRate=0f;
-
-
+        int numChars=0;
+        for(int i=0; i<list.size();i++){
+            String s=list.get(i);
+            numChars+=s.length();
+        }
+        //error rate is calculated by ((true-error)/true)*100
+        errorRate=((float)(numChars-numErrors)/numChars )* 100f;
         return errorRate;
     }
 
@@ -261,9 +288,34 @@ public class QwertyTesting extends Activity {
      * This method is called when moving to the next set of phrases to be entered with another keyboard
      * layout. This method handles tracks the start & end times of each phrase, and tracking and
      * calculating WPM and error rate at the end of each phrase.
+     * called from userInputListener when it detects end of test
      */
     protected void changeKeyboard(){
+        Log.i(MYDEBUG,"Changing keyboard from "+currentKeyboard+" to "+currentKeyboard+1);
+        //remove listener when changing keyboard
+        userInput.removeTextChangedListener(userTextChangedListener);
+        userInput.setVisibility(View.GONE);
+        userInput.setEnabled(false);
+        userInput.setText("");
 
+        testView.setVisibility(View.GONE);
+        infoView.setVisibility(View.VISIBLE);
+
+        //if dvorak
+        info.setText(getString(R.string.dvorak_instruction));
+        pageTitle.setText(getString(R.string.dvorak_title));
+        beginTest.setText(getText(R.string.begin_dvorak));
+
+        //if messagease
+        info.setText(getString(R.string.messagease_instruction));
+        pageTitle.setText(getString(R.string.messagease_title));
+        beginTest.setText(getText(R.string.begin_messagease));
+
+
+
+
+
+        //if finishing last trial, call getResults()
     }
 
     /**

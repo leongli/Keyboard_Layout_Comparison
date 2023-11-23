@@ -17,12 +17,75 @@
         android:textSize="24sp" />
 
     <LinearLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center|top"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/qwerty_instruction"
+            android:layout_width="match_parent"
+            android:layout_height="136dp"
+            android:gravity="center"
+            android:lineSpacingExtra="5sp"
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:text="@string/qwerty_instruction"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|top">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/qwerty_select_box"
+                android:layout_width="341dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/check_active_keyboard_box"
+                android:includeFontPadding="false"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="159dp"
+                android:layout_height="157dp"
+                android:layout_weight="1"
+                android:contentDescription="TODO"
+                android:src="@drawable/keyboard_select_screenshot" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/keyboard_select_instruction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="4sp"
+            android:paddingLeft="30sp"
+            android:paddingRight="30sp"
+            android:text="@string/check_active_keyboard_instruction" />
+
+        <Button
+            android:id="@+id/goNext"
+            android:layout_width="305dp"
+            android:layout_height="wrap_content"
+            android:background="#02776C"
+            android:text="Begin Test"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/testLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="80sp"
         android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/time"

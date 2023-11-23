@@ -14,5 +14,13 @@
     <string name="begin_qwerty">Begin QWERTY Test</string>
     <string name="qwerty_instruction">The First set of phrases will be typed using the QWERTY keyboard. QWERTY keyboard should be active by default. If not, Click on the text input box below and select the QWERTY keyboard as seen in the screenshot below.</string>
 
+    <string name="dvorak_title">DVORAK Layout Test</string>
+    <string name="begin_dvorak">Begin DVORAK Test</string>
+    <string name="dvorak_instruction">The First set of phrases will be typed using the DVORAK keyboard. Click on the text input box below and select the DVORAK keyboard as seen in the screenshot below.</string>
+
+    <string name="messagease_title">MESSAGEASE Layout Test</string>
+    <string name="begin_messagease">Begin MESSAGEASE Test</string>
+    <string name="messagease_instruction">The First set of phrases will be typed using the MessagEase keyboard. Click on the text input box below and select the MessagEase keyboard as seen in the screenshot below.</string>
+
 
 </resources>

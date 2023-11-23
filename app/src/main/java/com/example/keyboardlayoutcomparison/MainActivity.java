@@ -1,3 +1,8 @@
+/**
+ * EECS4443 Final project
+ * Leong Li
+ */
+
 package com.example.keyboardlayoutcomparison;
 
 import android.app.Activity;
