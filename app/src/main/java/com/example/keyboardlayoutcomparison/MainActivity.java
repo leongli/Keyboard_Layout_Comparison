@@ -18,10 +18,10 @@ public class MainActivity extends Activity{
         setContentView(R.layout.main);
 
     }
-    public void proceed(View v){
+    public void proceed(View view){
         setContentView(R.layout.qwerty_intro);
     }
-    public void clickStart(View v){
+    public void clickStart(View view){
         Intent i = new Intent(getApplicationContext(), QwertyTesting.class);
         startActivity(i);
     }

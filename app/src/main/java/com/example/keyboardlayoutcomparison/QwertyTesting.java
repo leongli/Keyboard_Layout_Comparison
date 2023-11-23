@@ -86,7 +86,9 @@ public class QwertyTesting extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
+        Log.i(MYDEBUG,"MADE IT TO QWERTY TESTING");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.qwerty_testing);
         testView=findViewById(R.id.testLayout);
         infoView=findViewById(R.id.infoLayout);
