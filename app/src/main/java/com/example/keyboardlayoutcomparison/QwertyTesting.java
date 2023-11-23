@@ -1,6 +1,7 @@
 package com.example.keyboardlayoutcomparison;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -25,6 +26,7 @@ import java.util.Random;
 public class QwertyTesting extends Activity {
 
     private final static String MYDEBUG = "MYDEBUG";
+    private final static String DEBUGLOG = "DEBUGLOG";
     private final static int NUMBER_OF_TRIAL_PHRASES=5;
     private final static int PHRASES_SOURCE = R.raw.phrases;
 
@@ -40,7 +42,7 @@ public class QwertyTesting extends Activity {
     ArrayList<String>testPhraseList, qwertyPhraseList, dvorakPhraseList, messageasePhraseList;
     int currentPhraseNumber,currentKeyboard;
     UserInputListener userTextChangedListener;
-    Button nextPhase;
+    Button endOfTestOkButton;
     float qwertyWPM, dvorakWPM, messageaseWPM, qwertyErrorRate, dvorakErrorRate, messageaseErrorRate;
     private final static int QWERTY=0;
     private final static int DVORAK=1;
@@ -49,6 +51,7 @@ public class QwertyTesting extends Activity {
     int qwertyErrors, dvorakErrors, messageaseErrors, currentKeyboardErrors;
     long currentKeyboardTime,currentKeyboardStartTime, qwertyStartTime, qwertyStopTime, dvorakStartTime, dvorakStopTime, messageaseStartTime, messageaseStopTime;
     CountDownTimer countDownTimer;
+    String previousText;
 
     //State String Name Variables to be used in Bundle
     private final static String PHRASES_LIST="phrases_list";
@@ -62,16 +65,22 @@ public class QwertyTesting extends Activity {
     private final static String QWERTY_KEYBOARD_STOP_TIME="qwerty_keyboard_stop_time";
     private final static String QWERTY_KEYBOARD_ERRORS="qwerty_keyboard_errors";
     private final static String QWERTY_KEYBOARD_PHRASE_LIST="qwerty_keyboard_phrase_list";
+    private final static String QWERTY_KEYBOARD_WPM="qwerty_keyboard_wpm";
+    private final static String QWERTY_KEYBOARD_ERROR_RATE="qwerty_keyboard_error_rate";
 
     private final static String DVORAK_KEYBOARD_START_TIME="dvorak_keyboard_start_time";
     private final static String DVORAK_KEYBOARD_STOP_TIME="dvorak_keyboard_stop_time";
     private final static String DVORAK_KEYBOARD_ERRORS="dvorak_keyboard_errors";
     private final static String DVORAK_KEYBOARD_PHRASE_LIST="dvorak_keyboard_phrase_list";
+    private final static String DVORAK_KEYBOARD_WPM="dvorak_keyboard_wpm";
+    private final static String DVORAK_KEYBOARD_ERROR_RATE="dvorak_keyboard_error_rate";
 
     private final static String MESSAGEASE_KEYBOARD_START_TIME="messagease_keyboard_start_time";
     private final static String MESSAGEASE_KEYBOARD_STOP_TIME="messagease_keyboard_stop_time";
     private final static String MESSAGEASE_KEYBOARD_ERRORS="messagease_keyboard_errors";
     private final static String MESSAGEASE_KEYBOARD_PHRASE_LIST="messagease_keyboard_phrase_list";
+    private final static String MESSAGEASE_KEYBOARD_WPM="messagease_keyboard_wpm";
+    private final static String MESSAGEASE_KEYBOARD_ERROR_RATE="messagease_keyboard_error_rate";
 
 
 
@@ -97,8 +106,8 @@ public class QwertyTesting extends Activity {
         userInput = findViewById(R.id.userInput);
         timeLabel = findViewById(R.id.time);
     //goNext in-between phases, hidden for now
-        nextPhase = findViewById(R.id.next_phase_button);
-        nextPhase.setVisibility(View.GONE);
+        endOfTestOkButton = findViewById(R.id.end_of_test_OK);
+        endOfTestOkButton.setVisibility(View.GONE);
     //generate phase to type
         testPhraseList = generatePhraseSet();
         textToType.setText(testPhraseList.get(currentPhraseNumber));
@@ -298,24 +307,43 @@ public class QwertyTesting extends Activity {
         userInput.setEnabled(false);
         userInput.setText("");
 
-        testView.setVisibility(View.GONE);
-        infoView.setVisibility(View.VISIBLE);
+        textToType.setText(getString(R.string.on_finish_test));
+        if(currentKeyboard == QWERTY){
+            qwertyStopTime = System.currentTimeMillis();
+            qwertyStartTime = currentKeyboardStartTime;
+            qwertyErrors = currentKeyboardErrors;
+            currentKeyboard = DVORAK;
+            textToType.setText(getString(R.string.on_finish_test));
+            qwertyPhraseList.addAll(testPhraseList);
+            countDownTimer.cancel();
+            currentKeyboardTime =0;
 
-        //if dvorak
-        info.setText(getString(R.string.dvorak_instruction));
-        pageTitle.setText(getString(R.string.dvorak_title));
-        beginTest.setText(getText(R.string.begin_dvorak));
+            qwertyWPM = calculateWPM(qwertyPhraseList, (qwertyStopTime - qwertyStartTime));
+            qwertyErrorRate = calculateErrorRate(qwertyPhraseList, qwertyErrors);
+        }else if(currentKeyboard == DVORAK){
+            dvorakStopTime = System.currentTimeMillis();
+            dvorakStartTime = currentKeyboardStartTime;
+            dvorakErrors = currentKeyboardErrors;
+            currentKeyboard=MESSAGEASE;
+            textToType.setText(getString(R.string.on_finish_test));
+            dvorakPhraseList.addAll(testPhraseList);
+            countDownTimer.cancel();
+            currentKeyboardTime=0;
 
-        //if messagease
-        info.setText(getString(R.string.messagease_instruction));
-        pageTitle.setText(getString(R.string.messagease_title));
-        beginTest.setText(getText(R.string.begin_messagease));
+            dvorakWPM = calculateWPM(dvorakPhraseList, (dvorakStopTime-dvorakStartTime));
+            dvorakErrorRate = calculateErrorRate(dvorakPhraseList, dvorakErrors);
+        }else if(currentKeyboard == MESSAGEASE){
+            messageaseStopTime = System.currentTimeMillis();
+            messageaseStartTime = currentKeyboardStartTime;
+            messageaseErrors = currentKeyboardErrors;
+            dvorakPhraseList.addAll(testPhraseList);
+            countDownTimer.cancel();
+            textToType.setText("");
+
+            getResults();
+        }
 
 
-
-
-
-        //if finishing last trial, call getResults()
     }
 
     /**
@@ -323,8 +351,39 @@ public class QwertyTesting extends Activity {
      * and reset current phase's parameters
      * @param view view object for transition
      */
-    protected void onClickNextPhrase(View view){
+    protected void onClickEndOfTestOK(View view){
+        testPhraseList = generatePhraseSet();
 
+        testView.setVisibility(View.GONE);
+        infoView.setVisibility(View.VISIBLE);
+        if(currentKeyboard==DVORAK){
+            //if dvorak
+            info.setText(getString(R.string.dvorak_instruction));
+            pageTitle.setText(getString(R.string.dvorak_title));
+            beginTest.setText(getText(R.string.begin_dvorak));
+        }else if(currentKeyboard == MESSAGEASE){
+            //if messagease
+            info.setText(getString(R.string.messagease_instruction));
+            pageTitle.setText(getString(R.string.messagease_title));
+            beginTest.setText(getText(R.string.begin_messagease));
+        }
+
+    }
+
+    protected void onClickBeginTest(View view){
+        infoView.setVisibility(View.GONE);
+        testView.setVisibility(View.VISIBLE);
+        testPhraseList = generatePhraseSet();
+
+        textToType.setText(testPhraseList.get(currentPhraseNumber));
+        userInput.setVisibility(View.VISIBLE);
+        userInput.setEnabled(true);
+        endOfTestOkButton.setVisibility(View.GONE);
+        currentKeyboardErrors=0;
+        currentKeyboardStartTime=System.currentTimeMillis();
+        userInput.setText("");
+        userInput.addTextChangedListener(userTextChangedListener);
+        countDownTimer.start();
     }
 
     /**
@@ -333,21 +392,96 @@ public class QwertyTesting extends Activity {
      * to next activity.
      */
     protected void getResults(){
+        Intent i = new Intent(getApplicationContext(), ResultsActivity.class);
+        Bundle b = new Bundle();
 
+        b.putFloat(QWERTY_KEYBOARD_WPM, qwertyWPM);
+        b.putFloat(QWERTY_KEYBOARD_ERROR_RATE, qwertyErrorRate);
+        b.putFloat(DVORAK_KEYBOARD_WPM, dvorakWPM);
+        b.putFloat(DVORAK_KEYBOARD_ERROR_RATE, dvorakErrorRate);
+        b.putFloat(MESSAGEASE_KEYBOARD_WPM, messageaseWPM);
+        b.putFloat(MESSAGEASE_KEYBOARD_ERROR_RATE, messageaseErrorRate);
+
+        i.putExtras(b);
+        startActivity(i);
+        finish();
     }
 
     private class UserInputListener implements TextWatcher{
         @Override
         public void afterTextChanged(Editable e){
-
+//
         }
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after){
-
+            previousText = s.toString();
         }
         @Override
         public void onTextChanged(CharSequence s, int start, int count, int after){
+            //do not allow backspace. if new length less than previous length
+            if(s.length() < previousText.length()){
+                Log.i(MYDEBUG, "BACKSPACE DETECTED");
+                userInput.setText(previousText);
+                userInput.setSelection(start+1);
+            }
 
+            String currentPhrase = testPhraseList.get(currentPhraseNumber);
+            int indexOfTypedChar = s.length()-1;
+            if(indexOfTypedChar < 0 ){
+                indexOfTypedChar=0;
+            }
+        //checking valid
+            if(testPhraseList.isEmpty() || currentPhraseNumber >- testPhraseList.size()){
+                Log.i(DEBUGLOG, "Invalid phrase number or phrase list empty");
+            }
+            if(s == null || s.length() <= indexOfTypedChar){
+                Log.i(DEBUGLOG, "s is null or is negative length");
+                return;
+            }
+            if(indexOfTypedChar < currentPhrase.length() -1){
+                //typed char not in last phase
+                char correctChar = currentPhrase.charAt(indexOfTypedChar);
+                char typedChar = s.charAt(indexOfTypedChar);
+
+                if(typedChar!=correctChar){
+                    //error found
+                    userInput.removeTextChangedListener(this);
+                    Log.i(DEBUGLOG,"incorrect char at "+indexOfTypedChar);
+                    userInput.setText(currentPhrase.substring(0, Math.min(indexOfTypedChar, currentPhrase.length())));
+                    if(indexOfTypedChar < s.length()){
+                        userInput.setSelection(indexOfTypedChar);
+                    }
+                    userInput.addTextChangedListener(this);
+                    currentKeyboardErrors++;
+                }else{
+                    //error not found
+                }
+            }else{
+                //typed char in last character of phrase
+                currentPhraseNumber++;
+                if(currentPhraseNumber <= testPhraseList.size()-1){
+                    //last phrase in test
+                    indexOfTypedChar=0;
+                    userInput.removeTextChangedListener(this);
+                    //adjust selection
+                    if(indexOfTypedChar < currentPhrase.length()-1 && indexOfTypedChar < s.length()){
+                        userInput.setSelection(indexOfTypedChar);
+                    }else{
+                        userInput.setSelection(currentPhrase.length());
+                    }
+                    userInput.removeTextChangedListener(this);
+                    //reset userInputBox
+                    userInput.setText(new Editable.Factory().newEditable(""));
+
+                    textToType.setText(testPhraseList.get(currentPhraseNumber));
+                    Log.i(MYDEBUG,"new phrase: "+testPhraseList.get(currentPhraseNumber));
+                    userInput.addTextChangedListener(this);
+                }else{
+                    //no unused phrases remain
+                    currentPhraseNumber=0;
+                    changeKeyboard();
+                }
+            }
         }
 
 

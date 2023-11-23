@@ -72,6 +72,7 @@
             android:layout_width="305dp"
             android:layout_height="wrap_content"
             android:background="#02776C"
+            android:onClick="onClickBeginTest"
             android:text="Begin Test"
             android:textColor="#FFFFFF" />
 
@@ -121,9 +122,10 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-            android:id="@+id/next_phase_button"
+            android:id="@+id/end_of_test_OK"
             android:layout_width="243dp"
             android:layout_height="wrap_content"
-            android:text="Next Phase" />
+            android:onClick="onClickEndOfTestOK"
+            android:text="OK" />
     </LinearLayout>
 </LinearLayout>

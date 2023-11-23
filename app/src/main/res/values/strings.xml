@@ -2,7 +2,7 @@
     <string name="app_name">Keyboard Layout Comparison</string>
     <string name="check_active_keyboard_box">Click here to open keyboard and select layout</string>
     <string name="check_active_keyboard_instruction">Tap on the Keyboard logo like the one in the screenshot above to select the keyboard layout to be used.</string>
-
+    <string name="on_finish_test">Well done! You have completed the set of phrases, press ok to begin the next set.</string>
 
     <string name="main_title">Keyboard Layout Comparison Test</string>
     <string name="main_instructions">Welcome to our keyboard layout comparison test. You will be be shown a three sets of five phrases, in each set,in each set you are expected to type the given phrase in the text box with the specified keyboard layout. You will be given a chance to change the keyboard layout at the beginning of each set.</string>
@@ -16,11 +16,20 @@
 
     <string name="dvorak_title">DVORAK Layout Test</string>
     <string name="begin_dvorak">Begin DVORAK Test</string>
-    <string name="dvorak_instruction">The First set of phrases will be typed using the DVORAK keyboard. Click on the text input box below and select the DVORAK keyboard as seen in the screenshot below.</string>
+    <string name="dvorak_instruction">The Second set of phrases will be typed using the DVORAK keyboard. Click on the text input box below and select the DVORAK keyboard as seen in the screenshot below.</string>
 
     <string name="messagease_title">MESSAGEASE Layout Test</string>
     <string name="begin_messagease">Begin MESSAGEASE Test</string>
-    <string name="messagease_instruction">The First set of phrases will be typed using the MessagEase keyboard. Click on the text input box below and select the MessagEase keyboard as seen in the screenshot below.</string>
+    <string name="messagease_instruction">The Last set of phrases will be typed using the MessagEase keyboard. Click on the text input box below and select the MessagEase keyboard as seen in the screenshot below.</string>
 
+    <string name="results_title">Results</string>
+    <string name="top_overall">Top Overall</string>
+    <string name="fastest">Fastest: </string>
+    <string name="most_accurate">Most Accurate: </string>
+    <string name="typing_speed">Typing Speed: </string>
+    <string name="accuracy">Accuracy: </string>
+    <string name="qwerty">QWERTY</string>
+    <string name="messagease">MESSAGEASE</string>
+    <string name="dvorak">DVORAK</string>
 
 </resources>
