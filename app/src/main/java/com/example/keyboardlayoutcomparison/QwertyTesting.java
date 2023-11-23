@@ -1,6 +1,7 @@
 package com.example.keyboardlayoutcomparison;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -11,18 +12,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class QwertyTesting extends Activity {
 
     private final static String MYDEBUG = "MYDEBUG";
-    private final static int NUMBER_OF_QUESTIONS=5;
+    private final static int NUMBER_OF_TRIAL_PHRASES=5;
+    private final static int PHRASES_SOURCE = R.raw.phrases;
 
     TextView textToType, timeLabel;
     EditText userInput;
-    ArrayList<String>testPhaseList, qwertyPhraseList, dvorakPhraseList, messageasePhraseList;
-    int questionPointer,keyboard;
+    ArrayList<String>testPhraseList, qwertyPhraseList, dvorakPhraseList, messageasePhraseList;
+    int currentPhraseNumber,currentKeyboard;
     UserInputListener userTextChangedListener;
     Button nextPhase;
     float qwertyWPM, dvorakWPM, messageaseWPM, qwertyErrorRate, dvorakErrorRate, messageaseErrorRate;
@@ -30,9 +37,34 @@ public class QwertyTesting extends Activity {
     private final static int DVORAK=1;
     private final static int MESSAGEASE=2;
 
-    int qwertyErrors, dvorakErrors, messageaseErrors;
-    long currentPhaseTime, qwertyStartTime, qwertyStopTime, dvorakStartTime, dvorakStopTime, messageaseStartTime, messageaseStopTime;
+    int qwertyErrors, dvorakErrors, messageaseErrors, currentKeyboardErrors;
+    long currentKeyboardTime,currentKeyboardStartTime, qwertyStartTime, qwertyStopTime, dvorakStartTime, dvorakStopTime, messageaseStartTime, messageaseStopTime;
     CountDownTimer countDownTimer;
+
+    //State String Name Variables to be used in Bundle
+    private final static String PHRASES_LIST="phrases_list";
+    private final static String PHRASES_LIST_CHARS="phrases_list_chars";
+    private final static String CURRENT_KEYBOARD="current_keyboard";
+    private final static String CURRENT_KEYBOARD_PHRASE_NUMBER="current_keyboard_phrase_number";
+    private final static String CURRENT_KEYBOARD_START_TIME="current_keyboard_start_time";
+    private final static String CURRENT_KEYBOARD_ERRORS="current_keyboard_errors";
+
+    private final static String QWERTY_KEYBOARD_START_TIME="qwerty_keyboard_start_time";
+    private final static String QWERTY_KEYBOARD_STOP_TIME="qwerty_keyboard_stop_time";
+    private final static String QWERTY_KEYBOARD_ERRORS="qwerty_keyboard_errors";
+    private final static String QWERTY_KEYBOARD_PHRASE_LIST="qwerty_keyboard_phrase_list";
+
+    private final static String DVORAK_KEYBOARD_START_TIME="dvorak_keyboard_start_time";
+    private final static String DVORAK_KEYBOARD_STOP_TIME="dvorak_keyboard_stop_time";
+    private final static String DVORAK_KEYBOARD_ERRORS="dvorak_keyboard_errors";
+    private final static String DVORAK_KEYBOARD_PHRASE_LIST="dvorak_keyboard_phrase_list";
+
+    private final static String MESSAGEASE_KEYBOARD_START_TIME="messagease_keyboard_start_time";
+    private final static String MESSAGEASE_KEYBOARD_STOP_TIME="messagease_keyboard_stop_time";
+    private final static String MESSAGEASE_KEYBOARD_ERRORS="messagease_keyboard_errors";
+    private final static String MESSAGEASE_KEYBOARD_PHRASE_LIST="messagease_keyboard_phrase_list";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -46,10 +78,10 @@ public class QwertyTesting extends Activity {
         nextPhase = findViewById(R.id.next_phase_button);
         nextPhase.setVisibility(View.GONE);
     //generate phase to type
-        testPhaseList = generatePhraseSet();
-        textToType.setText(testPhaseList.get(questionPointer));
+        testPhraseList = generatePhraseSet();
+        textToType.setText(testPhraseList.get(currentPhraseNumber));
     //set other environment variables
-        keyboard=QWERTY;
+        currentKeyboard=QWERTY;
     //initialize stats for each keyboard layout wpm, error rate
         qwertyWPM=0f;
         qwertyErrorRate=0f;
@@ -74,17 +106,18 @@ public class QwertyTesting extends Activity {
 
 
     //create timer
-        currentPhaseTime=0;
+        currentKeyboardTime =0;
         countDownTimer= new CountDownTimer(Long.MAX_VALUE, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                currentPhaseTime++;
-                long mills=currentPhaseTime;
+                //current Keyboard time is just a custom incremented timer, not a system millis
+                currentKeyboardTime++;
+                long mills= currentKeyboardTime;
                 int seconds= (int)(mills/60);
                 int minutes= (int) (seconds/60);
                 String time = String.format("%02d:%02d", seconds, mills);
                 timeLabel.setText(time);
-                Log.i("TIME", currentPhaseTime+" \t"+time);
+                Log.i("TIME", currentKeyboardTime +" \t"+time);
             }
 
             @Override
@@ -101,12 +134,52 @@ public class QwertyTesting extends Activity {
 
     public void onRestoreInstance(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
+        testPhraseList = savedInstanceState.getStringArrayList(PHRASES_LIST);
 
+        currentPhraseNumber = savedInstanceState.getInt(CURRENT_KEYBOARD_PHRASE_NUMBER);
+        currentKeyboardStartTime = savedInstanceState.getLong(CURRENT_KEYBOARD_START_TIME);
+        currentKeyboardErrors=savedInstanceState.getInt(CURRENT_KEYBOARD_ERRORS);
+        currentKeyboard=savedInstanceState.getInt(CURRENT_KEYBOARD);
 
+        qwertyStartTime = savedInstanceState.getLong(QWERTY_KEYBOARD_START_TIME);
+        qwertyStopTime=savedInstanceState.getLong(QWERTY_KEYBOARD_STOP_TIME);
+        qwertyErrors=savedInstanceState.getInt(QWERTY_KEYBOARD_ERRORS);
+        qwertyPhraseList = savedInstanceState.getStringArrayList(QWERTY_KEYBOARD_PHRASE_LIST);
+
+        dvorakStartTime = savedInstanceState.getLong(DVORAK_KEYBOARD_START_TIME);
+        dvorakStopTime=savedInstanceState.getLong(DVORAK_KEYBOARD_STOP_TIME);
+        dvorakErrors=savedInstanceState.getInt(DVORAK_KEYBOARD_ERRORS);
+        dvorakPhraseList = savedInstanceState.getStringArrayList(DVORAK_KEYBOARD_PHRASE_LIST);
+
+        messageaseStartTime = savedInstanceState.getLong(MESSAGEASE_KEYBOARD_START_TIME);
+        messageaseStopTime=savedInstanceState.getLong(MESSAGEASE_KEYBOARD_STOP_TIME);
+        messageaseErrors=savedInstanceState.getInt(MESSAGEASE_KEYBOARD_ERRORS);
+        messageasePhraseList = savedInstanceState.getStringArrayList(MESSAGEASE_KEYBOARD_PHRASE_LIST);
     }
 
     public void onSaveInstanceState(Bundle savedInstanceState){
         //add to savedInstanceState
+        savedInstanceState.putStringArrayList(PHRASES_LIST,testPhraseList);
+
+        savedInstanceState.putInt(CURRENT_KEYBOARD,currentKeyboard);
+        savedInstanceState.putInt(CURRENT_KEYBOARD_ERRORS,currentKeyboardErrors);
+        savedInstanceState.putInt(CURRENT_KEYBOARD_PHRASE_NUMBER,currentPhraseNumber);
+        savedInstanceState.putLong(CURRENT_KEYBOARD_START_TIME,currentKeyboardStartTime);
+
+        savedInstanceState.putLong(QWERTY_KEYBOARD_START_TIME,qwertyStartTime);
+        savedInstanceState.putLong(QWERTY_KEYBOARD_STOP_TIME, qwertyStopTime);
+        savedInstanceState.putInt(QWERTY_KEYBOARD_ERRORS,qwertyErrors);
+        savedInstanceState.putStringArrayList(QWERTY_KEYBOARD_PHRASE_LIST,qwertyPhraseList);
+
+        savedInstanceState.putLong(DVORAK_KEYBOARD_START_TIME,dvorakStartTime);
+        savedInstanceState.putLong(DVORAK_KEYBOARD_STOP_TIME, dvorakStopTime);
+        savedInstanceState.putInt(DVORAK_KEYBOARD_ERRORS,dvorakErrors);
+        savedInstanceState.putStringArrayList(DVORAK_KEYBOARD_PHRASE_LIST,dvorakPhraseList);
+
+        savedInstanceState.putLong(MESSAGEASE_KEYBOARD_START_TIME,messageaseStartTime);
+        savedInstanceState.putLong(MESSAGEASE_KEYBOARD_STOP_TIME, messageaseStopTime);
+        savedInstanceState.putInt(MESSAGEASE_KEYBOARD_ERRORS,messageaseErrors);
+        savedInstanceState.putStringArrayList(MESSAGEASE_KEYBOARD_PHRASE_LIST,messageasePhraseList);
 
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -114,10 +187,40 @@ public class QwertyTesting extends Activity {
     /**
      * Method to generate Phrases to be used on trials. This method accesses a text file in Res>Raw
      * and randomly selects phrases and stores them in an arrayList to be returned
+     * Phrases in this text file are generated using https://www.thewordfinder.com/random-sentence-generator/
+     * and formatted to lowercase and remove special characters using https://textcleaner.net/
+     * given that each set of trials uses 5 phrases, and there are 3 sets for this experiment,
+     * the text file has 45 phrases of varying length, enough to prevent any repeated phrases on subsequent trials
      * @return ArrayList of phrases to be used in trials
      */
     protected ArrayList<String> generatePhraseSet(){
-        return null;
+        ArrayList<String> allPhrases = new ArrayList<>();
+        ArrayList<String> phrasesForTrials = new ArrayList<>();
+        Resources resources = getApplicationContext().getResources();
+        InputStream inputStream = resources.openRawResource(PHRASES_SOURCE);
+
+        try{
+            InputStreamReader iRead = new InputStreamReader(inputStream);
+            BufferedReader bRead = new BufferedReader(iRead);
+            String s=bRead.readLine();
+            while(s!=null){
+                allPhrases.add(s);
+                s=bRead.readLine();
+            }
+            iRead.close();
+            bRead.close();
+            Random rand = new Random();
+            for(int i=0; i<NUMBER_OF_TRIAL_PHRASES; i++){
+                int index = rand.nextInt(allPhrases.size()-1);
+                phrasesForTrials.add(allPhrases.get(index));
+            }
+        }catch(FileNotFoundException e){
+            Log.i(MYDEBUG,"File NOT FOUND");
+        }catch(IOException e){
+            Log.i(MYDEBUG, "IO Exception");
+        }
+
+        return phrasesForTrials;
     }
 
     /**
@@ -128,8 +231,16 @@ public class QwertyTesting extends Activity {
      * @return wordsPerMin
      */
     protected float calculateWPM(ArrayList<String> list, long millisTime){
-        float wordsPerMin=0f;
-        return wordsPerMin;
+        //convert milliseconds to seconds
+        float secondsTime= millisTime / 1000f;
+        int words=0;
+        for(int i=0;i<list.size();i++){
+            String phrase = list.get(i);
+            String [] numWords = phrase.trim().split("\\s+");
+            words+=numWords.length;
+        }
+        //words / minute time
+        return words/(secondsTime/60);
     }
 
     /**
@@ -141,6 +252,8 @@ public class QwertyTesting extends Activity {
      */
     protected float calculateErrorRate(ArrayList<String> list, int numErrors){
         float errorRate=0f;
+
+
         return errorRate;
     }
 
