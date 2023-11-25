@@ -2,7 +2,8 @@
     <string name="app_name">Keyboard Layout Comparison</string>
     <string name="check_active_keyboard_box">Click here to open keyboard and select layout</string>
     <string name="check_active_keyboard_instruction">Tap on the Keyboard logo like the one in the screenshot above to select the keyboard layout to be used.</string>
-    <string name="on_finish_test">Well done! You have completed the set of phrases, press ok to begin the next set.</string>
+    <string name="on_finish_test_qwerty">Well done! You have completed the set of phrases. Before we begin with the next set, tap on the text box and switch keyboard to DVORAK. (Same steps as you did before beginning the test)</string>
+    <string name="on_finish_test_dvorak">Well done! You have completed the set of phrases. Before we begin with the next set, tap on the text box and switch keyboard to MessagEase. (Same steps as you did before beginning the test)</string>
 
     <string name="main_title">Keyboard Layout Comparison Test</string>
     <string name="main_instructions">Welcome to our keyboard layout comparison test. You will be be shown a three sets of five phrases, in each set,in each set you are expected to type the given phrase in the text box with the specified keyboard layout. You will be given a chance to change the keyboard layout at the beginning of each set.</string>

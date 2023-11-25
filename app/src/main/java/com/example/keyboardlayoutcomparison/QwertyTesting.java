@@ -86,7 +86,6 @@ public class QwertyTesting extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-        Log.i(MYDEBUG,"MADE IT TO QWERTY TESTING");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.qwerty_testing);
@@ -115,6 +114,7 @@ public class QwertyTesting extends Activity {
         textToType.setText(testPhraseList.get(currentPhraseNumber));
     //set other environment variables
         currentKeyboard=QWERTY;
+        currentKeyboardStartTime =System.currentTimeMillis();
     //initialize stats for each keyboard layout wpm, error rate
         qwertyWPM=0f;
         qwertyErrorRate=0f;
@@ -160,12 +160,16 @@ public class QwertyTesting extends Activity {
         };
 
 
+
     //listener for each character typed, object class defined at very bottom of this activity
         userTextChangedListener = new UserInputListener();
         userInput.addTextChangedListener(userTextChangedListener);
+
+        countDownTimer.start();
     }
 
-    public void onRestoreInstance(Bundle savedInstanceState){
+
+    public void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
         testPhraseList = savedInstanceState.getStringArrayList(PHRASES_LIST);
 
@@ -272,6 +276,7 @@ public class QwertyTesting extends Activity {
             String [] numWords = phrase.trim().split("\\s+");
             words+=numWords.length;
         }
+        Log.i(MYDEBUG, "words: "+words+" time: "+secondsTime/60);
         //words / minute time
         return words/(secondsTime/60);
     }
@@ -302,46 +307,53 @@ public class QwertyTesting extends Activity {
      * called from userInputListener when it detects end of test
      */
     protected void changeKeyboard(){
-        Log.i(MYDEBUG,"Changing keyboard from "+currentKeyboard+" to "+currentKeyboard+1);
+        Log.i(MYDEBUG,"Changing keyboard from "+currentKeyboard+" to "+ (currentKeyboard+1));
+        Log.i(MYDEBUG, "current keyboard is "+currentKeyboard);
         //remove listener when changing keyboard
         userInput.removeTextChangedListener(userTextChangedListener);
-        userInput.setVisibility(View.GONE);
         userInput.setEnabled(false);
         userInput.setText("");
-
-        textToType.setText(getString(R.string.on_finish_test));
+        userInput.setEnabled(true);
+        endOfTestOkButton.setVisibility(View.VISIBLE);
+        //textToType.setText(getString(R.string.on_finish_test));
         if(currentKeyboard == QWERTY){
             qwertyStopTime = System.currentTimeMillis();
             qwertyStartTime = currentKeyboardStartTime;
             qwertyErrors = currentKeyboardErrors;
             currentKeyboard = DVORAK;
-            textToType.setText(getString(R.string.on_finish_test));
+            textToType.setText(getString(R.string.on_finish_test_qwerty));
             qwertyPhraseList.addAll(testPhraseList);
             countDownTimer.cancel();
             currentKeyboardTime =0;
+            Log.i(MYDEBUG,"QWERTY time:"+(qwertyStopTime - qwertyStartTime));
 
             qwertyWPM = calculateWPM(qwertyPhraseList, (qwertyStopTime - qwertyStartTime));
             qwertyErrorRate = calculateErrorRate(qwertyPhraseList, qwertyErrors);
+            Log.i(MYDEBUG, "QWERTY DONE WPM: "+qwertyWPM +"| ACC: "+qwertyErrorRate);
+
         }else if(currentKeyboard == DVORAK){
             dvorakStopTime = System.currentTimeMillis();
             dvorakStartTime = currentKeyboardStartTime;
             dvorakErrors = currentKeyboardErrors;
             currentKeyboard=MESSAGEASE;
-            textToType.setText(getString(R.string.on_finish_test));
+            textToType.setText(getString(R.string.on_finish_test_dvorak));
             dvorakPhraseList.addAll(testPhraseList);
             countDownTimer.cancel();
             currentKeyboardTime=0;
 
             dvorakWPM = calculateWPM(dvorakPhraseList, (dvorakStopTime-dvorakStartTime));
             dvorakErrorRate = calculateErrorRate(dvorakPhraseList, dvorakErrors);
+            Log.i(MYDEBUG, "DVORAK DONE WPM: "+dvorakWPM +"| ACC: "+dvorakErrorRate);
         }else if(currentKeyboard == MESSAGEASE){
             messageaseStopTime = System.currentTimeMillis();
             messageaseStartTime = currentKeyboardStartTime;
             messageaseErrors = currentKeyboardErrors;
-            dvorakPhraseList.addAll(testPhraseList);
+            messageasePhraseList.addAll(testPhraseList);
             countDownTimer.cancel();
             textToType.setText("");
-
+            messageaseWPM = calculateWPM(messageasePhraseList, (messageaseStopTime-messageaseStartTime));
+            messageaseErrorRate = calculateErrorRate(messageasePhraseList, messageaseErrors);
+            Log.i(MYDEBUG, "MESSAGEASE DONE WPM: "+messageaseWPM +"| ACC: "+messageaseErrorRate);
             getResults();
         }
 
@@ -353,27 +365,29 @@ public class QwertyTesting extends Activity {
      * and reset current phase's parameters
      * @param view view object for transition
      */
-    protected void onClickEndOfTestOK(View view){
-        testPhraseList = generatePhraseSet();
+//    protected void onClickEndOfTestOK(View view){
+//        testPhraseList = generatePhraseSet();
+//
+//        testView.setVisibility(View.GONE);
+//        infoView.setVisibility(View.VISIBLE);
+//        Log.i(MYDEBUG,"clicked end of test ok, now switching to keyboard "+currentKeyboard);
+//        if(currentKeyboard==DVORAK){
+//            //if dvorak
+//            info.setText(getString(R.string.dvorak_instruction));
+//            pageTitle.setText(getString(R.string.dvorak_title));
+//            beginTest.setText(getText(R.string.begin_dvorak));
+//            Log.i(MYDEBUG,"set text for dvorak info screen");
+//        }else if(currentKeyboard == MESSAGEASE){
+//            //if messagease
+//            info.setText(getString(R.string.messagease_instruction));
+//            pageTitle.setText(getString(R.string.messagease_title));
+//            beginTest.setText(getText(R.string.begin_messagease));
+//        }
+//
+//    }
 
-        testView.setVisibility(View.GONE);
-        infoView.setVisibility(View.VISIBLE);
-        if(currentKeyboard==DVORAK){
-            //if dvorak
-            info.setText(getString(R.string.dvorak_instruction));
-            pageTitle.setText(getString(R.string.dvorak_title));
-            beginTest.setText(getText(R.string.begin_dvorak));
-        }else if(currentKeyboard == MESSAGEASE){
-            //if messagease
-            info.setText(getString(R.string.messagease_instruction));
-            pageTitle.setText(getString(R.string.messagease_title));
-            beginTest.setText(getText(R.string.begin_messagease));
-        }
-
-    }
-
-    protected void onClickBeginTest(View view){
-        infoView.setVisibility(View.GONE);
+    public void onClickBeginTest(View view){
+        Log.i(MYDEBUG,"onclick begin test clicked ");
         testView.setVisibility(View.VISIBLE);
         testPhraseList = generatePhraseSet();
 
@@ -403,7 +417,9 @@ public class QwertyTesting extends Activity {
         b.putFloat(DVORAK_KEYBOARD_ERROR_RATE, dvorakErrorRate);
         b.putFloat(MESSAGEASE_KEYBOARD_WPM, messageaseWPM);
         b.putFloat(MESSAGEASE_KEYBOARD_ERROR_RATE, messageaseErrorRate);
-
+        Log.i(MYDEBUG,"ON RESULTS: Q WPM: "+qwertyWPM+" Q ACC"+qwertyErrorRate);
+        Log.i(MYDEBUG,"ON RESULTS: D WPM: "+dvorakWPM+" D ACC"+dvorakErrorRate);
+        Log.i(MYDEBUG,"ON RESULTS: M WPM: "+messageaseWPM+" M ACC"+messageaseErrorRate);
         i.putExtras(b);
         startActivity(i);
         finish();
@@ -434,7 +450,7 @@ public class QwertyTesting extends Activity {
             }
         //checking valid
             if(testPhraseList.isEmpty() || currentPhraseNumber >- testPhraseList.size()){
-                Log.i(DEBUGLOG, "Invalid phrase number or phrase list empty");
+                Log.i(DEBUGLOG, "Invalid phrase number or phrase list empty Phrase "+currentPhraseNumber);
             }
             if(s == null || s.length() <= indexOfTypedChar){
                 Log.i(DEBUGLOG, "s is null or is negative length");
