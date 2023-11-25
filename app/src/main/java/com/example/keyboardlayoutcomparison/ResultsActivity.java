@@ -9,7 +9,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class ResultsActivity extends Activity {
-
+    //State name strings for getting from saved instance state
     private final static String QWERTY_KEYBOARD_WPM="qwerty_keyboard_wpm";
     private final static String QWERTY_KEYBOARD_ERROR_RATE="qwerty_keyboard_error_rate";
     private final static String DVORAK_KEYBOARD_WPM="dvorak_keyboard_wpm";
@@ -20,7 +20,9 @@ public class ResultsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        //set content view
         setContentView(R.layout.results);
+        //get text view references in results.xml
         TextView fastest,mostAccurate, typingSpeedQ, accuracyQ, typingSpeedD, accuracyD, typingSpeedM, accuracyM;
         fastest=findViewById(R.id.fastest);
         mostAccurate=findViewById(R.id.mostAccurate);
@@ -30,17 +32,16 @@ public class ResultsActivity extends Activity {
         accuracyD= findViewById(R.id.AccuracyD);
         typingSpeedM=findViewById(R.id.TypingSpeedM);
         accuracyM= findViewById(R.id.AccuracyM);
-
+        //initialize variables
         float speedQ = 0f;
         float accQ =0f;
         float speedD = 0f;
         float accD =0f;
         float speedM = 0f;
         float accM =0f;
-
         String fastestKeyboard="";
         String mostAccurateKeyboard="";
-
+        //populate variables
         Intent callingIntent = getIntent();
         Bundle extras = callingIntent.getExtras();
         if(extras!=null){
@@ -51,26 +52,27 @@ public class ResultsActivity extends Activity {
             speedM = extras.getFloat(MESSAGEASE_KEYBOARD_WPM);
             accM=extras.getFloat(MESSAGEASE_KEYBOARD_ERROR_RATE);
         }
-
+        //set results for 3 keyboard layouts
         typingSpeedQ.setText(String.format("%.1f", speedQ)+"Words Per Minute");
         accuracyQ.setText(String.format("%.1f", accQ)+"%");
         typingSpeedD.setText(String.format("%.1f", speedD)+"Words Per Minute");
         accuracyD.setText(String.format("%.1f", accD)+"%");
         typingSpeedM.setText(String.format("%.1f", speedM)+"Words Per Minute");
         accuracyM.setText(String.format("%.1f", accM)+"%");
-
+        //FINDING OUT WINNERS
         String [] keyboards = {"Qwerty", "Dvorak", "MessagEase"};
         ArrayList<String> maxCategoryWinners = new ArrayList<>();
         float [] wpmValues = {speedQ, speedD, speedM};
         float[] accuracyValues ={accQ, accD, accM};
         float maxWpm = Math.max(speedQ,( Math.max(speedD, speedM)));
         float maxAcc = Math.max(accQ, (Math.max(accD, accM)));
-
+        //find fastest speed
         for(int i=0; i<wpmValues.length; i++){
             if(wpmValues[i]==maxWpm){
                 maxCategoryWinners.add(keyboards[i]);
             }
         }
+        // use arraylist to find if any ties
         int winnerCounter = maxCategoryWinners.size();
         for(String s: maxCategoryWinners){
             if(winnerCounter>1){
@@ -80,6 +82,7 @@ public class ResultsActivity extends Activity {
                 fastestKeyboard+=s;
             }
         }
+        //reset & solve most accurate
         maxCategoryWinners.clear();
         for(int i=0; i<accuracyValues.length; i++){
             if(accuracyValues[i]==maxAcc){
@@ -95,15 +98,10 @@ public class ResultsActivity extends Activity {
                 mostAccurateKeyboard+=s;
             }
         }
-
+        //display overall winners
         fastest.setText(fastestKeyboard);
         mostAccurate.setText(mostAccurateKeyboard);
 
-
     }
-//    public void finish(View view){
-//        Intent i = new Intent(getApplicationContext(), MainActivity.class);
-//        startActivity(i);
-//        finish();
-//    }
+
 }

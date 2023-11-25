@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,39 +22,38 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class QwertyTesting extends Activity {
+public class TestingActivity extends Activity {
 
+    //for debug
     private final static String MYDEBUG = "MYDEBUG";
     private final static String DEBUGLOG = "DEBUGLOG";
+    //environment variable: number of phrases for each set of trial
     private final static int NUMBER_OF_TRIAL_PHRASES=5;
+    //source of phrases in res>raw>phrases.txt
     private final static int PHRASES_SOURCE = R.raw.phrases;
 
-    LinearLayout testView, infoView;
-
-    //for info view
-    TextView info, pictureCaption;
-    ImageView keyboardScreenshot;
-    Button beginTest;
-    EditText selectKeyboard;
+    LinearLayout testView;
     TextView pageTitle, textToType, timeLabel;
     EditText userInput;
     ArrayList<String>testPhraseList, qwertyPhraseList, dvorakPhraseList, messageasePhraseList;
     int currentPhraseNumber,currentKeyboard;
     UserInputListener userTextChangedListener;
     Button endOfTestOkButton;
+    //values to be calculated and sent to results page
     float qwertyWPM, dvorakWPM, messageaseWPM, qwertyErrorRate, dvorakErrorRate, messageaseErrorRate;
+    //state tracking variable
     private final static int QWERTY=0;
     private final static int DVORAK=1;
     private final static int MESSAGEASE=2;
-
+    //integer count for each error in typing
     int qwertyErrors, dvorakErrors, messageaseErrors, currentKeyboardErrors;
+    //time stored in millis -> long
     long currentKeyboardTime,currentKeyboardStartTime, qwertyStartTime, qwertyStopTime, dvorakStartTime, dvorakStopTime, messageaseStartTime, messageaseStopTime;
     CountDownTimer countDownTimer;
     String previousText;
 
     //State String Name Variables to be used in Bundle
     private final static String PHRASES_LIST="phrases_list";
-    private final static String PHRASES_LIST_CHARS="phrases_list_chars";
     private final static String CURRENT_KEYBOARD="current_keyboard";
     private final static String CURRENT_KEYBOARD_PHRASE_NUMBER="current_keyboard_phrase_number";
     private final static String CURRENT_KEYBOARD_START_TIME="current_keyboard_start_time";
@@ -87,22 +85,12 @@ public class QwertyTesting extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.qwerty_testing);
+    //view testing xml layout
+        setContentView(R.layout.testing_page);
         testView=findViewById(R.id.testLayout);
-        infoView=findViewById(R.id.infoLayout);
-
-        info = findViewById(R.id.qwerty_instruction);
-        pictureCaption= findViewById(R.id.keyboard_select_instruction);
-        keyboardScreenshot = findViewById(R.id.imageView);
-        beginTest = findViewById(R.id.goNext);
-        selectKeyboard=findViewById(R.id.qwerty_select_box);
-        infoView.setVisibility(View.GONE);
-
         testView.setVisibility(View.VISIBLE);
-
     //set references from view
-        pageTitle = findViewById(R.id.qwerty_intro_title3);
+        pageTitle = findViewById(R.id.test_title);
         textToType = findViewById(R.id.text_to_enter);
         userInput = findViewById(R.id.userInput);
         timeLabel = findViewById(R.id.time);
@@ -137,7 +125,6 @@ public class QwertyTesting extends Activity {
         messageasePhraseList= new ArrayList<>();
         messageaseErrors=0;
 
-
     //create timer
         currentKeyboardTime =0;
         countDownTimer= new CountDownTimer(Long.MAX_VALUE, 1000) {
@@ -159,15 +146,13 @@ public class QwertyTesting extends Activity {
             }
         };
 
-
-
     //listener for each character typed, object class defined at very bottom of this activity
         userTextChangedListener = new UserInputListener();
         userInput.addTextChangedListener(userTextChangedListener);
-
+    //begin first test
         countDownTimer.start();
+        userInput.setSelected(true);
     }
-
 
     public void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
@@ -235,7 +220,6 @@ public class QwertyTesting extends Activity {
         ArrayList<String> phrasesForTrials = new ArrayList<>();
         Resources resources = getApplicationContext().getResources();
         InputStream inputStream = resources.openRawResource(PHRASES_SOURCE);
-
         try{
             InputStreamReader iRead = new InputStreamReader(inputStream);
             BufferedReader bRead = new BufferedReader(iRead);
@@ -256,7 +240,6 @@ public class QwertyTesting extends Activity {
         }catch(IOException e){
             Log.i(MYDEBUG, "IO Exception");
         }
-
         return phrasesForTrials;
     }
 
@@ -308,97 +291,94 @@ public class QwertyTesting extends Activity {
      */
     protected void changeKeyboard(){
         Log.i(MYDEBUG,"Changing keyboard from "+currentKeyboard+" to "+ (currentKeyboard+1));
-        Log.i(MYDEBUG, "current keyboard is "+currentKeyboard);
         //remove listener when changing keyboard
         userInput.removeTextChangedListener(userTextChangedListener);
         userInput.setEnabled(false);
         userInput.setText("");
+        //enable again for user to switch keyboard layout before beginning next set of phrases
         userInput.setEnabled(true);
+        //button to proceed to next set of phrases
         endOfTestOkButton.setVisibility(View.VISIBLE);
-        //textToType.setText(getString(R.string.on_finish_test));
         if(currentKeyboard == QWERTY){
+            //done qwerty, now switch to dvorak
+            //record stats
             qwertyStopTime = System.currentTimeMillis();
             qwertyStartTime = currentKeyboardStartTime;
             qwertyErrors = currentKeyboardErrors;
-            currentKeyboard = DVORAK;
-            textToType.setText(getString(R.string.on_finish_test_qwerty));
             qwertyPhraseList.addAll(testPhraseList);
+            //cancel & reset timer after recording stop time
             countDownTimer.cancel();
             currentKeyboardTime =0;
-            Log.i(MYDEBUG,"QWERTY time:"+(qwertyStopTime - qwertyStartTime));
-
+            //calculate stats with defined methods calculateWPM and calculateErrorRate
             qwertyWPM = calculateWPM(qwertyPhraseList, (qwertyStopTime - qwertyStartTime));
             qwertyErrorRate = calculateErrorRate(qwertyPhraseList, qwertyErrors);
             Log.i(MYDEBUG, "QWERTY DONE WPM: "+qwertyWPM +"| ACC: "+qwertyErrorRate);
-
+            //moving forward preparing for next keyboard layout
+            textToType.setText(getString(R.string.on_finish_test_qwerty));
+            pageTitle.setText(getString(R.string.dvorak_title));
+            currentKeyboard = DVORAK;
         }else if(currentKeyboard == DVORAK){
+            //done dvorak, now switch to messagease
+            //record stats
             dvorakStopTime = System.currentTimeMillis();
             dvorakStartTime = currentKeyboardStartTime;
             dvorakErrors = currentKeyboardErrors;
-            currentKeyboard=MESSAGEASE;
-            textToType.setText(getString(R.string.on_finish_test_dvorak));
             dvorakPhraseList.addAll(testPhraseList);
+            //cancel and reset timer after recording stop time
             countDownTimer.cancel();
             currentKeyboardTime=0;
-
+            // calculate stats with defined methods calculateWPM and calculateErrorRate
             dvorakWPM = calculateWPM(dvorakPhraseList, (dvorakStopTime-dvorakStartTime));
             dvorakErrorRate = calculateErrorRate(dvorakPhraseList, dvorakErrors);
             Log.i(MYDEBUG, "DVORAK DONE WPM: "+dvorakWPM +"| ACC: "+dvorakErrorRate);
+            //moving forward preparing for next keyboard layout
+            currentKeyboard=MESSAGEASE;
+            textToType.setText(getString(R.string.on_finish_test_dvorak));
+            pageTitle.setText(getString(R.string.messagease_title));
         }else if(currentKeyboard == MESSAGEASE){
+            //done messagease, now calculate stats and pass calculated stats to results page via getResults()
+            //record stats
             messageaseStopTime = System.currentTimeMillis();
             messageaseStartTime = currentKeyboardStartTime;
             messageaseErrors = currentKeyboardErrors;
             messageasePhraseList.addAll(testPhraseList);
+            //cancel timer
             countDownTimer.cancel();
+            //reset text view
             textToType.setText("");
+            //calculate stats with defined methods calculateWPM and calculateErrorRate
             messageaseWPM = calculateWPM(messageasePhraseList, (messageaseStopTime-messageaseStartTime));
             messageaseErrorRate = calculateErrorRate(messageasePhraseList, messageaseErrors);
             Log.i(MYDEBUG, "MESSAGEASE DONE WPM: "+messageaseWPM +"| ACC: "+messageaseErrorRate);
+            //move to results page
             getResults();
         }
-
-
-    }
+    } //end changeKeyboard()
 
     /**
-     * This method manages the transition between phases, by removing in-between phases display and
-     * and reset current phase's parameters
-     * @param view view object for transition
+     * Button onClick function for button id:"end_of_test_OK" . This method replaces text to type text view
+     * with instructions to follow before moving forward with the next set of phrases.
+     * @param view : button's view
      */
-//    protected void onClickEndOfTestOK(View view){
-//        testPhraseList = generatePhraseSet();
-//
-//        testView.setVisibility(View.GONE);
-//        infoView.setVisibility(View.VISIBLE);
-//        Log.i(MYDEBUG,"clicked end of test ok, now switching to keyboard "+currentKeyboard);
-//        if(currentKeyboard==DVORAK){
-//            //if dvorak
-//            info.setText(getString(R.string.dvorak_instruction));
-//            pageTitle.setText(getString(R.string.dvorak_title));
-//            beginTest.setText(getText(R.string.begin_dvorak));
-//            Log.i(MYDEBUG,"set text for dvorak info screen");
-//        }else if(currentKeyboard == MESSAGEASE){
-//            //if messagease
-//            info.setText(getString(R.string.messagease_instruction));
-//            pageTitle.setText(getString(R.string.messagease_title));
-//            beginTest.setText(getText(R.string.begin_messagease));
-//        }
-//
-//    }
-
     public void onClickBeginTest(View view){
         Log.i(MYDEBUG,"onclick begin test clicked ");
+        //make sure its visible
         testView.setVisibility(View.VISIBLE);
+        //generate new phrase list for new keyboard
         testPhraseList = generatePhraseSet();
-
+        //set first phrase
         textToType.setText(testPhraseList.get(currentPhraseNumber));
+        //enable user input
         userInput.setVisibility(View.VISIBLE);
         userInput.setEnabled(true);
+        //remove begin test button from view
         endOfTestOkButton.setVisibility(View.GONE);
+        //reset current stats for starting set of phrases with new keyboard
         currentKeyboardErrors=0;
         currentKeyboardStartTime=System.currentTimeMillis();
         userInput.setText("");
         userInput.addTextChangedListener(userTextChangedListener);
+        //begin new test
         countDownTimer.start();
     }
 
@@ -410,7 +390,7 @@ public class QwertyTesting extends Activity {
     protected void getResults(){
         Intent i = new Intent(getApplicationContext(), ResultsActivity.class);
         Bundle b = new Bundle();
-
+        //store calculated stats in bundle
         b.putFloat(QWERTY_KEYBOARD_WPM, qwertyWPM);
         b.putFloat(QWERTY_KEYBOARD_ERROR_RATE, qwertyErrorRate);
         b.putFloat(DVORAK_KEYBOARD_WPM, dvorakWPM);
@@ -428,41 +408,42 @@ public class QwertyTesting extends Activity {
     private class UserInputListener implements TextWatcher{
         @Override
         public void afterTextChanged(Editable e){
-//
+
         }
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after){
+            //track previous text if error is made
             previousText = s.toString();
         }
         @Override
         public void onTextChanged(CharSequence s, int start, int count, int after){
-            //do not allow backspace. if new length less than previous length
+            //do not allow backspace. if new user input length less than previous length
             if(s.length() < previousText.length()){
                 Log.i(MYDEBUG, "BACKSPACE DETECTED");
                 userInput.setText(previousText);
                 userInput.setSelection(start+1);
             }
-
+            //get text to be typed, & index of current user cursor
             String currentPhrase = testPhraseList.get(currentPhraseNumber);
             int indexOfTypedChar = s.length()-1;
             if(indexOfTypedChar < 0 ){
                 indexOfTypedChar=0;
             }
-        //checking valid
+            //checking valid
             if(testPhraseList.isEmpty() || currentPhraseNumber >- testPhraseList.size()){
                 Log.i(DEBUGLOG, "Invalid phrase number or phrase list empty Phrase "+currentPhraseNumber);
             }
             if(s == null || s.length() <= indexOfTypedChar){
-                Log.i(DEBUGLOG, "s is null or is negative length");
+                Log.i(DEBUGLOG, "user input s is null or is negative length");
                 return;
             }
             if(indexOfTypedChar < currentPhrase.length() -1){
-                //typed char not in last phase
+                //still more characters to be typed in phrase before completing phrase
                 char correctChar = currentPhrase.charAt(indexOfTypedChar);
                 char typedChar = s.charAt(indexOfTypedChar);
-
                 if(typedChar!=correctChar){
                     //error found
+                    //temporarily remove listener & reset user input field to previous text
                     userInput.removeTextChangedListener(this);
                     Log.i(DEBUGLOG,"incorrect char at "+indexOfTypedChar);
                     userInput.setText(currentPhrase.substring(0, Math.min(indexOfTypedChar, currentPhrase.length())));
@@ -490,7 +471,7 @@ public class QwertyTesting extends Activity {
                     userInput.removeTextChangedListener(this);
                     //reset userInputBox
                     userInput.setText(new Editable.Factory().newEditable(""));
-
+                    //get next phrase
                     textToType.setText(testPhraseList.get(currentPhraseNumber));
                     Log.i(MYDEBUG,"new phrase: "+testPhraseList.get(currentPhraseNumber));
                     userInput.addTextChangedListener(this);
@@ -502,10 +483,6 @@ public class QwertyTesting extends Activity {
             }
         }
 
+    }//end userInputListener()
 
-
-    }
-
-
-
-}
+}//end testingActivity
