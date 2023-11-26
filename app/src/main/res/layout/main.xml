@@ -32,7 +32,7 @@
     <TextView
         android:id="@+id/main_instruction2"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
+        android:layout_height="236dp"
         android:gravity="center"
         android:lineSpacingExtra="4sp"
         android:paddingLeft="5sp"
@@ -41,7 +41,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="227dp"
+        android:layout_height="88dp"
         android:gravity="bottom|center"
         android:orientation="vertical">
 
