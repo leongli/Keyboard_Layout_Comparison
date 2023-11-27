@@ -133,9 +133,9 @@ public class TestingActivity extends Activity {
                 //current Keyboard time is just a custom incremented timer, not a system millis
                 currentKeyboardTime++;
                 long mills= currentKeyboardTime;
-                int seconds= (int)(mills/60);
-                int minutes= (int) (seconds/60);
-                String time = String.format("%02d:%02d", seconds, mills);
+                int seconds= (int)(mills%60);
+                int minutes= (int) (mills/60);
+                String time = String.format("%02d:%02d", minutes, seconds);
                 timeLabel.setText(time);
                 Log.i("TIME", currentKeyboardTime +" \t"+time);
             }
