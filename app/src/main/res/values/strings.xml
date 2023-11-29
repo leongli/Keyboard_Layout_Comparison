@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Keyboard Layout Comparison</string>
+    <string name="app_name">KeyLogger</string>
     <string name="check_active_keyboard_box">Click here to open keyboard and select layout</string>
     <string name="check_active_keyboard_instruction">Tap on the Keyboard logo like the one in the screenshot above to select the keyboard layout to be used.</string>
     <string name="on_finish_test_qwerty">Well done! You have completed the set of phrases. Tap on the text box and switch keyboard to DVORAK. (Same steps as you did before). You may now practice with this keyboard layout. Press \'OK\' when you are ready to begin next test</string>
     <string name="on_finish_test_dvorak">Well done! You have completed the set of phrases. Tap on the text box and switch keyboard to MessagEase. (Same steps as you did before). You may now practice with this keyboard layout. Press \'OK\' when you are ready to begin next test</string>
 
-    <string name="main_title">Keyboard Layout Comparison Test</string>
+    <string name="main_title">KeyLogger</string>
     <string name="main_instructions">Welcome to our keyboard layout comparison test. You will be shown a three sets of five phrases. In each set you are expected to type the given phrase in the text box below with the specified keyboard layout. You will be given a chance to change and practice the keyboard layout at the beginning of each set.</string>
     <string name="main_instructions2">The keyboard layouts being used are QWERTY, DVORAK, and MessagEase. Please make sure these keyboard layouts have been installed and enabled on this testing device. Installation apk files have been attached with submission folder for installing these keyboard layouts. QWERTY is installed and enabled by default.
         \n NOTE: Make sure AUTO-CAPITALIZATION for these keyboards have been TURNED OFF. This can be done via keyboard\'s app\'s settings. </string>
