@@ -63,6 +63,6 @@
             android:layout_width="243dp"
             android:layout_height="wrap_content"
             android:onClick="onClickBeginTest"
-            android:text="OK" />
+            android:text="@string/OK" />
     </LinearLayout>
 </LinearLayout>

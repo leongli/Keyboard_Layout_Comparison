@@ -23,6 +23,15 @@
     </activity>
         <activity android:name="com.example.keyboardlayoutcomparison.TestingActivity"/>
         <activity android:name="com.example.keyboardlayoutcomparison.ResultsActivity"/>
-
+        <activity
+            android:name="androidx.test.core.app.InstrumentationActivityInvoker$BootstrapActivity"
+            tools:node="merge">
+            <intent-filter tools:node="removeAll" />
+        </activity>
+        <activity
+            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
+            tools:node="merge">
+            <intent-filter tools:node="removeAll" />
+        </activity>
     </application>
 </manifest>
