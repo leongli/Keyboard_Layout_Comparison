@@ -8,11 +8,11 @@ The experiment aims to analyze the typing speed and accuracy of three keyboard l
 The experiment employs an observational approach, where participants transcribe passages using the different keyboard layouts on a Samsung Galaxy A54 smartphone. The KeyLogger app records typing speed, accuracy, and user feedback via questionnaires to compare the efficiency and user satisfaction with each layout.
 
 ### Contents
-• App Code: Contains the Java code for the KeyLogger Android application developed using Android Studio IDE.
+• **App Code:** Contains the Java code for the KeyLogger Android application developed using Android Studio IDE.
 
-• Screenshots: Screenshots of the app interface showcasing the QWERTY, DVORAK, and MessagEase keyboard layouts during the experiment.
+• **Screenshots:** Screenshots of the app interface showcasing the QWERTY, DVORAK, and MessagEase keyboard layouts during the experiment.
 
-• Results: Statistical analysis and findings from the experiment, including accuracy and typing speed results per layout.
+• **Results:** Statistical analysis and findings from the experiment, including accuracy and typing speed results per layout.
 
 ### How to Use
 To replicate or further explore the experiment:
