@@ -1,5 +1,5 @@
 # Keyboard_Layout_Comparison
-Welcome to the KeyLogger Typing Experiment repository! This repository contains the code and details for an Android application designed to conduct an experiment evaluating the efficiency of different keyboard layouts on mobile devices.
+Welcome to the KeyLogger Typing Experiment repository! This repository contains the code and details for an Android application designed to conduct an experiment evaluating the efficiency of different keyboard layouts on mobile devices. The full report can be found [here](https://docs.google.com/document/d/1pQU1-UywmazvgQSpE0UWPUUFh25QlHBqlC6zkQnBUBg/edit?usp=sharing)
 
 ## About the Experiment
 The experiment aims to analyze the typing speed and accuracy of three keyboard layouts—QWERTY, DVORAK, and MessagEase—on an Android mobile device. The study involves participants from York University and utilizes our Android application, KeyLogger, to track typing performance across multiple trials for each layout.
